@@ -1,15 +1,14 @@
 import {connect} from "react-redux";
 import {
     follow, getUsers,
-    setCurrentPage,
     setTotalUsersCount,
-    setUsers,
-    toggleIsFetching, toggleIsFollowing,
     unfollow,
 } from "../../redux/users-reducer";
 import React from "react";
 import Users from "./Users";
 import Preloader from "../common/Preloader";
+import {withAuthRedirect} from "../../hoc/withAuthRedirect";
+import {compose} from "redux";
 
 class UsersContainer extends React.Component {
 
@@ -54,9 +53,12 @@ let mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, {
-    follow, unfollow, setTotalUsersCount, getUsers,
-})(UsersContainer)
+export default compose(
+    connect(mapStateToProps, {
+        follow, unfollow, setTotalUsersCount, getUsers,
+    }),
+    withAuthRedirect
+)(UsersContainer)
 
 // let mapDispatchToProps = (dispatch) => {
 //     return {
