@@ -1,5 +1,5 @@
 import classes from './ProfileInfo.module.css'
-import Preloader from "../../common/Preloader";
+import Preloader from "../../common/Preloader/Preloader";
 import ProfileStatus from './ProfileStatus'
 import React from "react";
 
