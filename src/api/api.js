@@ -47,3 +47,9 @@ export const authAPI = {
         return instance.get(`auth/me`)
     }
 }
+
+// export const loginAPI = {
+//     signIn(email, password) {
+//         return instance.post('auth/login', {email: email, password: password})
+//     }
+// }
