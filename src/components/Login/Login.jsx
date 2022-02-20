@@ -1,9 +1,11 @@
 import {Field, reduxForm} from "redux-form";
+import {loginAPI} from "../../api/api";
 
 const Login = (props) =>{
 
     const onSubmit = (formData) => {
-
+        // console.log(formData)
+        // loginAPI.signIn(formData.login, formData.password)
     }
 
     return <div>
