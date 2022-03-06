@@ -4,16 +4,18 @@ import {Route, withRouter} from "react-router-dom";
 import Music from "./components/Music/Music";
 import Settings from "./components/Settings/Settings";
 import News from "./components/News/News";
-import DialogsContainer from "./components/Dialogs/DialogsContainer";
 import UsersContainer from "./components/Users/UsersContainer";
-import ProfileContainer from "./components/Profile/ProfileContainer";
 import HeaderContainer from "./components/Header/HeaderContainer";
-import LoginPage from "./components/Login/Login";
-import React, {Component} from "react";
+import React, {Component, Suspense} from "react";
 import {connect} from "react-redux";
 import {compose} from "redux";
 import {initializeApp} from "./redux/app-reducer";
 import Preloader from "./components/common/Preloader/Preloader";
+import {withSuspense} from "./hoc/withSuspense";
+
+const LoginPage = React.lazy(() => import('./components/Login/Login'));
+const ProfileContainer = React.lazy(() => import('./components/Profile/ProfileContainer'));
+const DialogsContainer = React.lazy(() => import('./components/Dialogs/DialogsContainer'));
 
 
 class App extends Component {
@@ -32,13 +34,13 @@ class App extends Component {
                 <HeaderContainer/>
                 <Navbar/>
                 <div className='app-wrapper-content'>
-                    <Route path='/dialogs' render={() => <DialogsContainer/>}/>
-                    <Route path='/profile/:userId?' render={() => <ProfileContainer/>}/>
+                    <Route path='/dialogs' render={withSuspense(DialogsContainer)}/>
+                    <Route path='/profile/:userId?' render={withSuspense(ProfileContainer)}/>
                     <Route path='/music' render={() => <Music/>}/>
                     <Route path='/news' render={() => <News/>}/>
                     <Route path='/users' render={() => <UsersContainer/>}/>
                     <Route path='/settings' render={() => <Settings/>}/>
-                    <Route path='/login' render={() => <LoginPage/>}/>
+                    <Route path='/login' render={withSuspense(LoginPage)}/>
                 </div>
             </div>
         );
