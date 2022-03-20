@@ -3,7 +3,7 @@ import {
     follow, requestUsers,
     setTotalUsersCount,
     unfollow,
-} from "../../redux/users-reducer";
+} from "../../redux/users-reducer.ts";
 import React from "react";
 import Users from "./Users";
 import Preloader from "../common/Preloader/Preloader";
@@ -63,26 +63,3 @@ export default compose(
     connect(mapStateToProps, {
         follow, unfollow, setTotalUsersCount, getUsers: requestUsers,
     }))(UsersContainer)
-
-// let mapDispatchToProps = (dispatch) => {
-//     return {
-//         follow: (userId) => {
-//             dispatch(followAC(userId))
-//         },
-//         unfollow: (userId) => {
-//             dispatch(unfollowAC(userId))
-//         },
-//         setUsers: (users) => {
-//             dispatch(setUsersAC(users))
-//         },
-//         setCurrentPage: (pageNumber) =>{
-//             dispatch(setCurrentPageAC(pageNumber))
-//         },
-//         setTotalUsersCount: (totalCount) =>{
-//             dispatch(setTotalUsersCountAC(totalCount))
-//         },
-//         toggleIsFetching: (fetch) =>{
-//             dispatch(toggleIsFetchingAC(fetch))
-//         }
-//     }
-// }
