@@ -9,7 +9,7 @@ import HeaderContainer from "./components/Header/HeaderContainer";
 import React, {Component, Suspense} from "react";
 import {connect} from "react-redux";
 import {compose} from "redux";
-import {initializeApp} from "./redux/app-reducer";
+import {initializeApp} from "./redux/app-reducer.ts";
 import Preloader from "./components/common/Preloader/Preloader";
 import {withSuspense} from "./hoc/withSuspense";
 
