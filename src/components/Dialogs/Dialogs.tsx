@@ -6,11 +6,17 @@ import {Redirect} from "react-router-dom";
 import {Field, reduxForm} from "redux-form";
 import {Textarea} from "../common/FormsControls/FormsControls";
 import {maxLengthCreator, required} from "../../utils/validators/validators";
+import {InitialStateType} from "../../redux/dialogs-reducer";
 
 let maxLength100 = maxLengthCreator(100)
 
+type PropsType = {
+    dialogsPage: InitialStateType
+    sendMessage: (messageText: string) => void
 
-const Dialogs = (props) => {
+}
+
+const Dialogs: React.FC<PropsType> = (props) => {
     let dialogsElements = (dialogs) => {
         return (
             dialogs.map(el => <DialogItem name={el.name} key = {el.id} id={el.id}/>)
@@ -27,7 +33,7 @@ const Dialogs = (props) => {
         return <Redirect to={'/login'}/>
     }
 
-    let addNewMessage = (values) => {
+    let addNewMessage = (values: {newMessageBody: string}) => {
         props.addMessage(values.newMessageBody)
     }
 

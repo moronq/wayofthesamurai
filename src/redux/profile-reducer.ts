@@ -1,103 +1,88 @@
-import {profileAPI, usersAPI} from "../api/api";
-import {stopSubmit} from "redux-form";
+import {FormAction, stopSubmit} from "redux-form";
 import {PhotosType, PostType, ProfileType} from "../types/types";
-
-const ADD_POST = 'ADD-POST'
-const SET_USER_PROFILE = 'SET_USER_PROFILE'
-const SET_STATUS = 'SET_STATUS'
-const SAVE_PHOTO_SUCCESS = 'SAVE_PHOTO_SUCCESS'
+import {profileAPI} from "../api/profile-api";
+import {BaseThunkType, InferActionsTypes} from "./redux-store";
 
 let initialState = {
     posts: [
         {id: 1, message: 'Всем привет епа мать', likeCount: 69,},
         {id: 2, message: 'Эй, почему вы меня не лайкаете???', likeCount: 0,},
         {id: 3, message: 'Салам моим пацанам', likeCount: 14,},
-        {id: 4, message: 'ебать это работает пацаны', likeCount: 14,},
-        {id: 5, message: 'ахуеть я че теперь разраб на реакте???', likeCount: 14,},
     ] as Array<PostType>,
     profile: null as ProfileType | null,
     status: '',
     newPostText: ''
 }
 
-export type InitialStateType = typeof initialState
-
-const profileReducer = (state = initialState, action: any): InitialStateType => {
+const profileReducer = (state = initialState, action: ActionsType): InitialStateType => {
 
     switch (action.type) {
-        case ADD_POST:
+        case 'SN/PROFILE/ADD-POST':
             return {
                 ...state,
-                posts: [...state.posts, {id: 6, message: action.postBody, likeCount: 12,}],
+                posts: [...state.posts, {id: 4, message: action.postBody, likeCount: 12,}],
             }
-        case SET_USER_PROFILE:
+        case "SN/PROFILE/SET_USER_PROFILE":
             return {...state, profile: action.profile}
-        case SET_STATUS:
+        case "SN/PROFILE/SET_STATUS":
             return {...state, status: action.status}
-        case SAVE_PHOTO_SUCCESS:
+        case "SN/PROFILE/SAVE_PHOTO_SUCCESS":
             return {...state, profile: {...state.profile, photos: action.photo}}
         default:
             return state
     }
 }
+
+export const actions = {
+    addPostActionCreator: (postBody: string) => ({type: 'SN/PROFILE/ADD-POST', postBody} as const),
+    setUserProfile: (profile: ProfileType) => ({type: 'SN/PROFILE/SET_USER_PROFILE', profile} as const),
+    setStatus: (status: string) => ({type: 'SN/PROFILE/SET_STATUS', status} as const),
+    savePhotoSuccess: (photo: PhotosType) => ({type: 'SN/PROFILE/SAVE_PHOTO_SUCCESS', photo} as const),
+}
+
+export const getUsersProfile = (userId: number): ThunkType => async (dispatch) => {
+    let data = await profileAPI.getProfile(userId)
+    dispatch(actions.setUserProfile(data))
+}
+
+export const getStatus = (userId: number): ThunkType => async (dispatch) => {
+    let data = await profileAPI.getStatus(userId)
+    dispatch(actions.setStatus(data))
+}
+
+export const savePhoto = (photo: File): ThunkType => async (dispatch) => {
+    let data = await profileAPI.savePhoto(photo)
+    if (data.resultCode === 0) {
+        dispatch(actions.savePhotoSuccess(data.data.photos))
+    }
+}
+
+export const saveProfile = (profile: ProfileType): ThunkType => async (dispatch, getState) => {
+    let userId = getState().auth.userId
+    let data = await profileAPI.saveProfile(profile)
+    if (data.resultCode === 0) {
+        if (userId != null) {
+            dispatch(getUsersProfile(userId))
+        } else {
+            throw new Error('userId can\'t be null')
+        }
+    } else {
+        dispatch(stopSubmit('edit-profile', {'contacts': {'facebook': data.messages[0]}}))
+        return Promise.reject(data.messages[0])
+    }
+}
+
+export const updateStatus = (status: string): ThunkType => async (dispatch) => {
+    let data = await profileAPI.updateStatus(status)
+    if (data.resultCode === 0) {
+        dispatch(actions.setStatus(status))
+    }
+}
+
 export default profileReducer
 
-type AddPostActionCreatorType = {
-    type: typeof ADD_POST
-    postBody: string
-}
-export const addPostActionCreator = (postBody: string): AddPostActionCreatorType => ({type: ADD_POST, postBody})
-type SetUserProfileActionType = {
-    type: typeof SET_USER_PROFILE
-    profile: ProfileType
-}
-export const setUserProfile = (profile: ProfileType): SetUserProfileActionType => ({type: SET_USER_PROFILE, profile})
-type SetStatusActionType = {
-    type: typeof SET_STATUS
-    status: string
-}
-export const setStatus = (status: string): SetStatusActionType => ({type: SET_STATUS, status})
-type SavePhotoSuccessActionType = {
-    type: typeof SAVE_PHOTO_SUCCESS
-    photo: PhotosType
-}
-export const savePhotoSuccess = (photo: PhotosType): SavePhotoSuccessActionType => ({type: SAVE_PHOTO_SUCCESS, photo})
-
-export const getUsersProfile = (userId: number) => async (dispatch: any) => {
-    let response = await usersAPI.getProfile(userId)
-    dispatch(setUserProfile(response.data))
-}
-
-export const getStatus = (userId: number) => async (dispatch: any) => {
-    let response = await profileAPI.getStatus(userId)
-    dispatch(setStatus(response.data))
-}
-
-export const savePhoto = (photo: PhotosType) => async (dispatch: any) => {
-    let response = await profileAPI.savePhoto(photo)
-    if (response.data.resultCode === 0) {
-        dispatch(savePhotoSuccess(response.data.data.photos))
-    }
-}
-
-export const saveProfile = (profile: ProfileType) => async (dispatch: any, getState: any) => {
-    let userId = getState().auth.userId
-    let response = await profileAPI.saveProfile(profile)
-    if (response.data.resultCode === 0) {
-        dispatch(getUsersProfile(userId))
-    } else {
-        dispatch(stopSubmit('edit-profile', {'contacts': {'facebook': response.data.messages[0]}}))
-        return Promise.reject(response.data.messages[0])
-    }
-}
-
-export const updateStatus = (status: string) => async (dispatch: any) => {
-    let response = await profileAPI.updateStatus(status)
-    if (response.data.resultCode === 0) {
-        dispatch(setStatus(status))
-    }
-}
-
-
+export type InitialStateType = typeof initialState
+type ActionsType = InferActionsTypes<typeof actions>
+type ThunkType = BaseThunkType<ActionsType | FormAction>
 
 
